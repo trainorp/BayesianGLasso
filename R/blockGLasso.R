@@ -20,16 +20,14 @@
 #' @author Patrick Trainor (University of Louisville)
 #' @author Hao Wang
 #' @references Wang, H. (2012). Bayesian graphical lasso models and efficient 
-#' posterior computation. \emph{Bayesian Analysis, 7}(4). doi: 10.1214/12-BA729.
+#' posterior computation. \emph{Bayesian Analysis, 7}(4). <doi:10.1214/12-BA729> .
 #' @examples
-#' \dontrun{
 #' # Generate true covariance matrix:
 #' s<-.9**toeplitz(0:9)
 #' # Generate multivariate normal distribution:
 #' set.seed(5)
 #' x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
 #' blockGLasso(X=x)
-#' }
 #' @export
 blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
                       verbose=TRUE)

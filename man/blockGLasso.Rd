@@ -37,7 +37,6 @@ permuted column/row for simulating the posterior distribution for the concentrat
 matrix specifying a Gaussian Graphical Model
 }
 \examples{
-\dontrun{
 # Generate true covariance matrix:
 s<-.9**toeplitz(0:9)
 # Generate multivariate normal distribution:
@@ -45,10 +44,9 @@ set.seed(5)
 x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
 blockGLasso(X=x)
 }
-}
 \references{
 Wang, H. (2012). Bayesian graphical lasso models and efficient 
-posterior computation. \emph{Bayesian Analysis, 7}(4). doi: 10.1214/12-BA729.
+posterior computation. \emph{Bayesian Analysis, 7}(4). <doi:10.1214/12-BA729> .
 }
 \author{
 Patrick Trainor (University of Louisville)
