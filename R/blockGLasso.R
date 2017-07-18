@@ -20,7 +20,7 @@
 #' @author Patrick Trainor (University of Louisville)
 #' @author Hao Wang
 #' @references Wang, H. (2012). Bayesian graphical lasso models and efficient 
-#' posterior computation. \emph{Bayesian Analysis, 7}(4)
+#' posterior computation. \emph{Bayesian Analysis, 7}(4). doi: 10.1214/12-BA729.
 #' @examples
 #' \dontrun{
 #' # Generate true covariance matrix:
