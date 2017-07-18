@@ -22,12 +22,19 @@
 #' @references Wang, H. (2012). Bayesian graphical lasso models and efficient 
 #' posterior computation. \emph{Bayesian Analysis, 7}(4). <doi:10.1214/12-BA729> .
 #' @examples
+#' \donttest{
 #' # Generate true covariance matrix:
 #' s<-.9**toeplitz(0:9)
 #' # Generate multivariate normal distribution:
 #' set.seed(5)
 #' x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
 #' blockGLasso(X=x)
+#' }
+#' # Same example with short MCMC chain:
+#' s<-.9**toeplitz(0:9)
+#' set.seed(6)
+#' x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
+#' blockGLasso(X=x,iterations=100,burnIn=100)
 #' @export
 blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
                       verbose=TRUE)
