@@ -44,8 +44,8 @@ blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=
   
   # Sum of product matrix, covariance matrix, n
   S<-t(X)%*%X
-  Sigma=stats::cov(X)
   n=nrow(X)
+  Sigma=S/n
   
   # Concentration matrix and it's dimension:
   Omega<-MASS::ginv(Sigma)
@@ -74,47 +74,55 @@ blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=
   for(iter in 1:totIter)
   {
     # Gamma distirbution posterior parameter b:
-    lambdaPostb<-(lambdaPriorb+sum(abs(c(Omega)))/2)
+    lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
+    cat("b post sum",lambdaPostb,"\n")
     # Sample lambda:
     lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
     
     OmegaTemp<-Omega[lower.tri(Omega)]
-    #cat("Omega Temp min=",min(OmegaTemp)," max=",max(OmegaTemp),"\n")
+    OmegaTemp<-abs(OmegaTemp)
+    OmegaTemp<-ifelse(OmegaTemp<1e-6,1e-6,OmegaTemp)
+    mup<-lambda/OmegaTemp
+    mup<-ifelse(mup>10e12,10e12,mup)
     
     # Sample tau:
     rinvgaussFun<-function(x)
     {
-      x<-ifelse(x<1e-12,1e-12,x)
-      #cat("lambda=",lambda," mu=",x,"\n")
       return(statmod::rinvgauss(n=1,mean=x,shape=lambda**2))
     }
-    tau[lower.tri(tau)]<-1/sapply(sqrt(lambda**2/(OmegaTemp**2)),rinvgaussFun)
-    tau[upper.tri(tau)]<-t(tau)[upper.tri(t(tau))]
-    
+    rIG<-sapply(mup,rinvgaussFun)
+    tau[upper.tri(tau)]<-1/rIG
+    tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
+
     # Sample from conditional distribution by column:
     for(i in 1:p)
     {
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
-      S21<-S[i,perms[,i]]
+      
+      #S21<-S[i,perms[,i]]
       Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
       Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
+      
       CiChol<-chol(Ci)
       mui<-solve(-Ci,S[perms[,i],i])
+
       # Sampling:
-      beta<-mui+solve(CiChol,stats::rnorm(p-1))
+      rnorm1<-stats::rnorm(p-1)
+      beta<-mui+solve(CiChol,rnorm1)
       
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
       gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambda)/2)
-      Omega[i,i]<-gamm+t(beta) %*% Omega11inv %*% beta
-      
+      Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
+
       # Replacing sigma entries
       OmegaInvTemp<-Omega11inv %*% beta
       Sigma[perms[,i],perms[,i]]<-Omega11inv+(OmegaInvTemp %*% t(OmegaInvTemp))/gamm
-      Sigma[perms[,i],i]<-Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
+      Sigma[perms[,i],i]<-(-OmegaInvTemp/gamm)
+      Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
       Sigma[i,i]<-1/gamm
     }
     if(iter %% 100 ==0)
