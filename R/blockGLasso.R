@@ -101,7 +101,6 @@ blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
       
-      #S21<-S[i,perms[,i]]
       Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
       Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
       
