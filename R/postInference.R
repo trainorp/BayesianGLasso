@@ -1,3 +1,7 @@
+#' Posterior inference 
+#'
+#' Posterior distributions
+#' 
 #' @export
 postInference<-function(x) UseMethod("postInference")
 
