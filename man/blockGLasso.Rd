@@ -4,8 +4,7 @@
 \alias{blockGLasso}
 \title{Block Gibbs sampler function}
 \usage{
-blockGLasso(X, iterations = 2000, burnIn = 1000, lambdaPriora = 1,
-  lambdaPriorb = 1/10, verbose = TRUE)
+blockGLasso(X, ...)
 }
 \arguments{
 \item{X}{Data matrix}
