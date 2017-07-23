@@ -1,4 +1,4 @@
-#' Block Gibbs sampler function
+#' Block Gibbs sampler for Bayesian Graphical Lasso
 #'
 #' Blockwise sampling from the conditional distribution of a permuted column/row
 #' for simulating the posterior distribution for the concentration matrix specifying
@@ -8,6 +8,7 @@
 #' @param burnIn Number of burn-in iterations
 #' @param lambdaPriora Shrinkage hyperparameter (lambda) gamma distribution shape
 #' @param lambdaPriorb Shrinkage hyperparameter (lambda) gamma distribution scale
+#' @param adaptive logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.
 #' @param verbose logical; if TRUE return MCMC progress
 #' @details Implements the block Gibbs sampler for the Bayesian graphical lasso
 #' introduced in Wang (2012). Samples from the conditional distribution of a 
@@ -36,4 +37,12 @@
 #' x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
 #' blockGLasso(X=x,iterations=100,burnIn=100)
 #' @export
-blockGLasso<-function(X,...) UseMethod("blockGLasso")
+blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
+                      adaptive=FALSE,verbose=TRUE,...)
+if(adaptive)
+{
+  UseMethod("blockGLasso")
+}else
+{
+  UseMethod("blockAdGLasso")
+}

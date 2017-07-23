@@ -2,9 +2,10 @@
 % Please edit documentation in R/blockGLasso.R
 \name{blockGLasso}
 \alias{blockGLasso}
-\title{Block Gibbs sampler function}
+\title{Block Gibbs sampler for Bayesian Graphical Lasso}
 \usage{
-blockGLasso(X, ...)
+blockGLasso(X, iterations = 2000, burnIn = 1000, lambdaPriora = 1,
+  lambdaPriorb = 1/10, adaptive = FALSE, verbose = TRUE, ...)
 }
 \arguments{
 \item{X}{Data matrix}
@@ -16,6 +17,8 @@ blockGLasso(X, ...)
 \item{lambdaPriora}{Shrinkage hyperparameter (lambda) gamma distribution shape}
 
 \item{lambdaPriorb}{Shrinkage hyperparameter (lambda) gamma distribution scale}
+
+\item{adaptive}{logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.}
 
 \item{verbose}{logical; if TRUE return MCMC progress}
 }

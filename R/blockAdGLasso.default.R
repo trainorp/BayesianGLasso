@@ -1,5 +1,5 @@
 #' @export
-blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
+blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
                               verbose=TRUE,...)
 {
   # Total iterations:
@@ -102,5 +102,6 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   }
   bglObj<-list(Sigmas=SigmaMatList,Omegas=OmegaMatList,lambdas=lambdas,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
+  print("Adaptive")
   return(bglObj)
 }

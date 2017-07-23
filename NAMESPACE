@@ -2,5 +2,6 @@
 
 S3method(blockGLasso,default)
 S3method(postInference,BayesianGLasso)
+export(blockAdGLasso.default)
 export(blockGLasso)
 export(postInference)
