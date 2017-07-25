@@ -39,10 +39,12 @@
 #' @export
 blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
                       adaptive=FALSE,verbose=TRUE,...)
-if(adaptive)
 {
-  UseMethod("blockGLasso")
-}else
-{
-  UseMethod("blockAdGLasso")
+  if(adaptive)
+  {
+    UseMethod("blockAdGLasso")
+  }else
+  {
+    UseMethod("blockGLasso")
+  }
 }

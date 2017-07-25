@@ -1,6 +1,6 @@
 #' @export
 blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
-                              verbose=TRUE,...)
+                                verbose=TRUE,...)
 {
   # Total iterations:
   totIter<-iterations+burnIn 
@@ -25,25 +25,31 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
   
   # Structures for storing each MCMC iteration:
   SigmaMatList<-OmegaMatList<-list()
-  lambdas<-rep(NA,totIter)
-  
+
   # Latent tau:
   tau<-matrix(NA,nrow=p,ncol=p)
   
-  # Gamma distirbution posterior parameter a:
-  lambdaPosta<-(lambdaPriora+(p*(p+1)/2))
+  # lambda hyperparameters:
+  s<-1e-2  
+  t<-1e-6
+  lambdaii<-1
   
   # Main block sampling loop:
   for(iter in 1:totIter)
   {
-    # Gamma distirbution posterior parameter b:
-    lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
-    # Sample lambda:
-    lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
-    
     OmegaTemp<-Omega[lower.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
     OmegaTemp<-ifelse(OmegaTemp<1e-6,1e-6,OmegaTemp)
+    
+    # Gamma distirbution posterior parameter s:
+    s<-s+1
+    
+    # Gamma distirbution posterior parameter t:
+    t<-OmegaTemp+t
+    
+    # Sample lambda (LOH):
+    lambda<-sapply(t,FUN=function(x) stats::rgamma(1,shape=s,scale=1/t))
+    
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>10e12,10e12,mup)
     
@@ -64,7 +70,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
       Sigma12<-Sigma[perms[,i],i]
       
       Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
-      Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
+      Ci<-(S[i,i]+lambdaii)*Omega11inv+diag(1/tauI)
       
       CiChol<-chol(Ci)
       mui<-solve(-Ci,S[perms[,i],i])
@@ -76,7 +82,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
-      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambda)/2)
+      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambdaii)/2)
       Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
       
       # Replacing sigma entries
@@ -92,15 +98,12 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
           ifelse(iter-burnIn>0,iter-burnIn,0), "\n")
     }
     
-    # Save lambda:
-    lambdas[iter]<-lambda
-    
     # Save Sigma and Omega:
     SigmaMatList[[iter]]<-Sigma
     OmegaMatList[[iter]]<-Omega
     
   }
-  bglObj<-list(Sigmas=SigmaMatList,Omegas=OmegaMatList,lambdas=lambdas,burnIn=burnIn)
+  bglObj<-list(Sigmas=SigmaMatList,Omegas=OmegaMatList,lambdas=NULL,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
   print("Adaptive")
   return(bglObj)
