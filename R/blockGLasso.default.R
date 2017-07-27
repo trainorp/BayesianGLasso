@@ -59,6 +59,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     # Sample from conditional distribution by column:
     for(i in 1:p)
     {
+      cat("i is...",i,"\n")
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
