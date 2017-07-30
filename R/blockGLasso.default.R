@@ -59,7 +59,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     # Sample from conditional distribution by column:
     for(i in 1:p)
     {
-      cat("i is...",i,"\n")
+      #cat("i is...",i,"\n")
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
@@ -68,6 +68,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
       
       CiChol<-chol(Ci)
+      #cat("det(CiChol) ",det(CiChol),"\n")
       mui<-solve(-Ci,S[perms[,i],i])
       
       # Sampling:
@@ -78,6 +79,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
       gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambda)/2)
+      #cat("gamma ",gamm,"\n")
       Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
       
       # Replacing sigma entries
