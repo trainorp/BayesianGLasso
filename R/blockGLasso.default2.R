@@ -46,13 +46,14 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     # Gamma distirbution posterior parameter b:
     lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
     # Sample lambda:
-    lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
+    #lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
+    lambda<-40
 
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
-    OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
+    OmegaTemp<-ifelse(OmegaTemp<1e-6,0,OmegaTemp)
     mup<-lambda/OmegaTemp
-    mup<-ifelse(mup>1e12,1e12,mup)
+    mup<-ifelse(mup>1e8,1e8,mup)
 
     # Sample tau:
     rinvgaussFun<-function(x)
@@ -64,6 +65,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
     
     # Sample from conditional distribution by column:
+    detCatch<-c()
     for(i in 1:p)
     {
       tauI<-tau[perms[,i],i]
@@ -72,7 +74,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       
       Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
       Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
-      
+
       CiChol<-chol(Ci)
       mui<-solve(-Ci,S[perms[,i],i])
       
@@ -83,9 +85,11 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
+      detCatch<-c(detCatch,det(Omega))
+      print(det(Omega))
       gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[i,i]+lambda)/2)
       Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
-      
+
       # Replacing sigma entries
       OmegaInvTemp<-Omega11inv %*% beta
       Sigma[perms[,i],perms[,i]]<-Omega11inv+(OmegaInvTemp %*% t(OmegaInvTemp))/gamm
