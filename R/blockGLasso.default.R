@@ -46,11 +46,12 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     # Gamma distirbution posterior parameter b:
     lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
     # Sample lambda:
+	  # Add fixed lambda option
     lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
-    
+
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
-    OmegaTemp<-ifelse(OmegaTemp<1e-6,1e-6,OmegaTemp)
+    #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>1e12,1e12,mup)
 
@@ -83,7 +84,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
-      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambda)/2)
+      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[i,i]+lambda)/2)
       Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
       
       # Replacing sigma entries

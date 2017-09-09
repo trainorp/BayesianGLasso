@@ -11,7 +11,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
   Sigma=S/n
   
   # Concentration matrix and it's dimension:
-  Omega<-MASS::ginv(Sigma)
+  if(rcond(Sigma)<.Machine$double.eps)
+  {
+    Omega<-diag(nrow(Sigma))
+  }
+  else
+  {
+    Omega<-MASS::ginv(Sigma)
+  }
   p<-dim(Omega)[1]
   
   # Indicator matrix and permutation matrix for looping through columns & rows ("blocks")
@@ -39,10 +46,9 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
     {
       for(iter in 1:totIter)
       {
-        print(iter)
-        OmegaTemp<-Omega[lower.tri(Omega)]
+        OmegaTemp<-Omega[upper.tri(Omega)]
         OmegaTemp<-abs(OmegaTemp)
-        OmegaTemp<-ifelse(OmegaTemp<1e-6,1e-6,OmegaTemp)
+        #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
         
         # Gamma distirbution posterior parameter s:
         s<-s+1
@@ -50,7 +56,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
         # Gamma distirbution posterior parameter t:
         tt<-OmegaTemp+tt
         
-        # Sample lambda (LOH):
+        # Sample lambda:
         lambda<-sapply(tt,FUN=function(x) stats::rgamma(1,shape=s,scale=1/x))
         
         mup<-lambda/OmegaTemp
@@ -62,14 +68,12 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
         {
           rIG[ii]<-statmod::rinvgauss(n=1,mean=mup[ii],shape=lambda[ii]**2)
         }
-
         tau[upper.tri(tau)]<-1/rIG
         tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
         
         # Sample from conditional distribution by column:
         for(i in 1:p)
         {
-          cat("i is ", i)
           tauI<-tau[perms[,i],i]
           Sigma11<-Sigma[perms[,i],perms[,i]]
           Sigma12<-Sigma[perms[,i],i]
@@ -87,7 +91,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
           # Replacing omega entries
           Omega[perms[,i],i]<-beta
           Omega[i,perms[,i]]<-beta
-          gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[1,1]+lambdaii)/2)
+          gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[i,i]+lambdaii)/2)
           Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
           
           # Replacing sigma entries
