@@ -46,7 +46,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     # Gamma distirbution posterior parameter b:
     lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
     # Sample lambda:
-	# Add fixed lambda option
+	  # Add fixed lambda option
     lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
 
     OmegaTemp<-Omega[upper.tri(Omega)]
@@ -94,7 +94,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
       Sigma[i,i]<-1/gamm
     }
-    if(verbose) #    if(iter %% 100==0 & verbose)
+    if(iter %% 100==0 & verbose)
     {
       cat("Total iterations= ",iter, "Iterations since burn in= ", 
           ifelse(iter-burnIn>0,iter-burnIn,0), "\n")
