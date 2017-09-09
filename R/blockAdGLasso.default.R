@@ -1,5 +1,6 @@
 #' @export
 blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
+                                illStart=c("identity","gLasso"),
                                 verbose=TRUE,...)
 {
   # Total iterations:
