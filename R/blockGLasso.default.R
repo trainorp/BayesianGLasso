@@ -1,11 +1,14 @@
 #' @export
 blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
-                              illStart=c("identity","gLasso"),
+                              illStart=c("identity","glasso"),rho=.1,
                               verbose=TRUE,...)
 {
   # Total iterations:
   totIter<-iterations+burnIn 
   
+  # Ill conditioned start:
+  illStart<-match.arg(illStart)
+
   # Sum of product matrix, covariance matrix, n
   S<-t(X)%*%X
   n=nrow(X)
@@ -14,7 +17,14 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   # Concentration matrix and it's dimension:
   if(rcond(Sigma)<.Machine$double.eps)
   {
-    Omega<-diag(nrow(Sigma))
+    if(illStart=="identity")
+    {
+      Omega<-diag(nrow(Sigma))
+    }
+    else
+    {
+      Omega<-glasso::glasso(cov(X),rho=rho)$wi
+    }
   }
   else
   {
@@ -53,6 +63,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
     #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
+    
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>1e12,1e12,mup)
 

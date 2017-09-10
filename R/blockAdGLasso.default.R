@@ -1,10 +1,13 @@
 #' @export
-blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
-                                illStart=c("identity","gLasso"),
+blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,gammaPriors=1,gammaPriort=1,
+                                lambdaii=1,illStart=c("identity","glasso"),rho=.1,
                                 verbose=TRUE,...)
 {
   # Total iterations:
-  totIter<-iterations+burnIn 
+  totIter<-iterations+burnIn
+  
+  # Ill conditioned start:
+  illStart<-match.arg(illStart)
   
   # Sum of product matrix, covariance matrix, n
   S<-t(X)%*%X
@@ -14,7 +17,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
   # Concentration matrix and it's dimension:
   if(rcond(Sigma)<.Machine$double.eps)
   {
-    Omega<-diag(nrow(Sigma))
+    if(illStart=="identity")
+    {
+      Omega<-diag(nrow(Sigma))
+    }
+    else
+    {
+      Omega<-glasso::glasso(cov(X),rho=rho)$wi
+    }
   }
   else
   {
@@ -36,12 +46,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
 
   # Latent tau:
   tau<-matrix(NA,nrow=p,ncol=p)
-  
-  # lambda hyperparameters:
-  s<-1e-2  
-  tt<-1e-6
-  lambdaii<-1
-  
+
   # Main block sampling loop:
   tryCatch(
     {
@@ -49,19 +54,19 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lam
       {
         OmegaTemp<-Omega[upper.tri(Omega)]
         OmegaTemp<-abs(OmegaTemp)
-        #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
+        OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
         
         # Gamma distirbution posterior parameter s:
-        s<-s+1
+        s<-gammaPriors+1
         
         # Gamma distirbution posterior parameter t:
-        tt<-OmegaTemp+tt
+        tt<-OmegaTemp+gammaPriort
         
         # Sample lambda:
         lambda<-sapply(tt,FUN=function(x) stats::rgamma(1,shape=s,scale=1/x))
         
         mup<-lambda/OmegaTemp
-        mup<-ifelse(mup>10e12,10e12,mup)
+        mup<-ifelse(mup>1e12,1e12,mup)
         
         # Sample tau:
         rIG<-rep(NA,length(mup))
