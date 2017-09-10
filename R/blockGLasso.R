@@ -6,9 +6,16 @@
 #' @param X Data matrix
 #' @param iterations Length of Markov chain after burn-in
 #' @param burnIn Number of burn-in iterations
-#' @param lambdaPriora Shrinkage hyperparameter (lambda) gamma distribution shape
-#' @param lambdaPriorb Shrinkage hyperparameter (lambda) gamma distribution scale
 #' @param adaptive logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.
+#' @param lambdaPriora Shrinkage parameter (lambda) gamma distribution shape hyperparameter
+#' (Ignored if adaptive=TRUE)
+#' @param lambdaPriorb Shrinkage parameter (lambda) gamma distribution scale hyperparameter
+#' (Ignored if adaptive=TRUE)
+#' @param gammaPriors labmda_ij gamma distribution shape prior (Ignored if adaptive=FALSE)
+#' @param gammaPriort lambda_ij gamma distribution rate prior (Ignored if adaptive=FALSE)
+#' @param lambdaii lambda_ii hyperparameter (Ignored if adaptive=FALSE)
+#' @param illStart if sample covariance matrix is not semi-positive definite [LOH]
+#' @param rho
 #' @param verbose logical; if TRUE return MCMC progress
 #' @details Implements the block Gibbs sampler for the Bayesian graphical lasso
 #' introduced in Wang (2012). Samples from the conditional distribution of a 
@@ -37,8 +44,10 @@
 #' x<-MASS::mvrnorm(n=100,mu=rep(0,10),Sigma=s)
 #' blockGLasso(X=x,iterations=100,burnIn=100)
 #' @export
-blockGLasso<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
-                      adaptive=FALSE,verbose=TRUE,...)
+blockGLasso<-function(X,iterations=2000,burnIn=1000,adaptive=FALSE,
+          lambdaPriora=1,lambdaPriorb=1/10,gammaPriors=1,gammaPriort=1,
+          lambdaii=1,illStart=c("identity","glasso"),rho=.1,
+          verbose=TRUE,...)
 {
   if(adaptive)
   {
