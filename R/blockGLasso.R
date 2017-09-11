@@ -6,7 +6,7 @@
 #' @param X Data matrix
 #' @param iterations Length of Markov chain after burn-in
 #' @param burnIn Number of burn-in iterations
-#' @param adaptive logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.
+#' @param adaptive Logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.
 #' @param lambdaPriora Shrinkage parameter (lambda) gamma distribution shape hyperparameter
 #' (Ignored if adaptive=TRUE)
 #' @param lambdaPriorb Shrinkage parameter (lambda) gamma distribution scale hyperparameter
@@ -14,8 +14,8 @@
 #' @param gammaPriors labmda_ij gamma distribution shape prior (Ignored if adaptive=FALSE)
 #' @param gammaPriort lambda_ij gamma distribution rate prior (Ignored if adaptive=FALSE)
 #' @param lambdaii lambda_ii hyperparameter (Ignored if adaptive=FALSE)
-#' @param illStart if sample covariance matrix is not semi-positive definite [LOH]
-#' @param rho
+#' @param illStart Method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite
+#' @param rho Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")
 #' @param verbose logical; if TRUE return MCMC progress
 #' @details Implements the block Gibbs sampler for the Bayesian graphical lasso
 #' introduced in Wang (2012). Samples from the conditional distribution of a 

@@ -4,8 +4,10 @@
 \alias{blockGLasso}
 \title{Block Gibbs sampler for Bayesian Graphical Lasso}
 \usage{
-blockGLasso(X, iterations = 2000, burnIn = 1000, lambdaPriora = 1,
-  lambdaPriorb = 1/10, adaptive = FALSE, verbose = TRUE, ...)
+blockGLasso(X, iterations = 2000, burnIn = 1000, adaptive = FALSE,
+  lambdaPriora = 1, lambdaPriorb = 1/10, gammaPriors = 1,
+  gammaPriort = 1, lambdaii = 1, illStart = c("identity", "glasso"),
+  rho = 0.1, verbose = TRUE, ...)
 }
 \arguments{
 \item{X}{Data matrix}
@@ -14,11 +16,23 @@ blockGLasso(X, iterations = 2000, burnIn = 1000, lambdaPriora = 1,
 
 \item{burnIn}{Number of burn-in iterations}
 
-\item{lambdaPriora}{Shrinkage hyperparameter (lambda) gamma distribution shape}
+\item{adaptive}{Logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.}
 
-\item{lambdaPriorb}{Shrinkage hyperparameter (lambda) gamma distribution scale}
+\item{lambdaPriora}{Shrinkage parameter (lambda) gamma distribution shape hyperparameter
+(Ignored if adaptive=TRUE)}
 
-\item{adaptive}{logical; Adaptive graphical lasso (TRUE) or regular (FALSE). Default is FALSE.}
+\item{lambdaPriorb}{Shrinkage parameter (lambda) gamma distribution scale hyperparameter
+(Ignored if adaptive=TRUE)}
+
+\item{gammaPriors}{labmda_ij gamma distribution shape prior (Ignored if adaptive=FALSE)}
+
+\item{gammaPriort}{lambda_ij gamma distribution rate prior (Ignored if adaptive=FALSE)}
+
+\item{lambdaii}{lambda_ii hyperparameter (Ignored if adaptive=FALSE)}
+
+\item{illStart}{method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite}
+
+\item{rho}{Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")}
 
 \item{verbose}{logical; if TRUE return MCMC progress}
 }
