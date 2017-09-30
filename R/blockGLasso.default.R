@@ -62,7 +62,6 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
 
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
-    #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
     
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>1e12,1e12,mup)
@@ -96,7 +95,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
       Omega[i,perms[,i]]<-beta
-      gamm<-stats::rgamma(n=1,shape=n/2+1,shape=(S[i,i]+lambda)/2)
+      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[i,i]+lambda)/2)
       Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
       
       # Replacing sigma entries
