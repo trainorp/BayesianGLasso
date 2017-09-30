@@ -58,11 +58,10 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
     # Sample lambda:
 	  # Add fixed lambda option
-    lambda<-stats::rgamma(1,shape=lambdaPosta,scale=1/lambdaPostb)
+    lambda<-stats::rgamma(1,shape=lambdaPosta,scale=lambdaPostb)
 
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
-    #OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
     
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>1e12,1e12,mup)

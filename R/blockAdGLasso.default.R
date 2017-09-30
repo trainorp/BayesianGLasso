@@ -54,7 +54,6 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,gammaPriors=1,gamm
       {
         OmegaTemp<-Omega[upper.tri(Omega)]
         OmegaTemp<-abs(OmegaTemp)
-        OmegaTemp<-ifelse(OmegaTemp<1e-8,1e-8,OmegaTemp)
         
         # Gamma distirbution posterior parameter s:
         s<-gammaPriors+1
