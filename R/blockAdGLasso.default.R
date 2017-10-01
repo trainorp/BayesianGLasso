@@ -1,11 +1,12 @@
 #' @export
-blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,gammaPriors=1,gammaPriort=1,
+blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("norm","priorHyper"),
+                                priorHyper=NULL,gammaPriors=1,gammaPriort=1,
                                 lambdaii=1,illStart=c("identity","glasso"),rho=.1,
                                 verbose=TRUE,...)
 {
   # Total iterations:
   totIter<-iterations+burnIn
-  
+
   # Ill conditioned start:
   illStart<-match.arg(illStart)
   
@@ -13,6 +14,16 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,gammaPriors=1,gamm
   S<-t(X)%*%X
   n=nrow(X)
   Sigma=S/n
+  
+  # Adaptive type:
+  adaptiveType<-match.arg(adaptiveType)
+  if(adaptiveType=="priorHyper")
+  {
+    if(is.null(priorHyper)) stop("Must specify matrix of prior hyperparameters")
+    if(class(priorHyper)!="matrix") stop("Prior hyperparameters must be provided as a matrix")
+    if(!all(dim(Sigma)==dim(priorHyper))) stop("Dimesion of hyperparameters does not equal dimension 
+                                           of the concentration matrix")
+  }
   
   # Concentration matrix and it's dimension:
   if(rcond(Sigma)<.Machine$double.eps)
@@ -59,7 +70,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,gammaPriors=1,gamm
         s<-gammaPriors+1
         
         # Gamma distirbution posterior parameter t:
-        tt<-OmegaTemp+gammaPriort
+        if(adaptiveType=="priorHyper")
+        {
+          tt<-OmegaTemp+priorHyper[upper.tri(priorHyper)]
+        }
+        else
+        {
+          tt<-OmegaTemp+gammaPriort
+        }
         
         # Sample lambda:
         lambda<-sapply(tt,FUN=function(x) stats::rgamma(1,shape=s,scale=1/x))
