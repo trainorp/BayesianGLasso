@@ -5,9 +5,10 @@
 \title{Block Gibbs sampler for Bayesian Graphical Lasso}
 \usage{
 blockGLasso(X, iterations = 2000, burnIn = 1000, adaptive = FALSE,
-  lambdaPriora = 1, lambdaPriorb = 1/10, gammaPriors = 1,
-  gammaPriort = 1, lambdaii = 1, illStart = c("identity", "glasso"),
-  rho = 0.1, verbose = TRUE, ...)
+  lambdaPriora = 1, lambdaPriorb = 1/10, adaptiveType = c("norm",
+  "priorHyper"), priorHyper = NULL, gammaPriors = 1, gammaPriort = 1,
+  lambdaii = 1, illStart = c("identity", "glasso"), rho = 0.1,
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{X}{Data matrix}
@@ -24,13 +25,18 @@ blockGLasso(X, iterations = 2000, burnIn = 1000, adaptive = FALSE,
 \item{lambdaPriorb}{Shrinkage parameter (lambda) gamma distribution scale hyperparameter
 (Ignored if adaptive=TRUE)}
 
+\item{adaptiveType}{Choose of adaptive type. Options are "norm" for norm of concentration
+matrix based adaptivity and "priorHyper" for informative adaptivity}
+
+\item{priorHyper}{Matrix of gamma scale hyper parameters (Ignord if adaptiveType="norm")}
+
 \item{gammaPriors}{labmda_ij gamma distribution shape prior (Ignored if adaptive=FALSE)}
 
 \item{gammaPriort}{lambda_ij gamma distribution rate prior (Ignored if adaptive=FALSE)}
 
 \item{lambdaii}{lambda_ii hyperparameter (Ignored if adaptive=FALSE)}
 
-\item{illStart}{method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite}
+\item{illStart}{Method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite}
 
 \item{rho}{Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")}
 
