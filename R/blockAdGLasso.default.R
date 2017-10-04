@@ -78,7 +78,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
         {
           tt<-OmegaTemp+gammaPriort
         }
-        
+
         # Sample lambda:
         lambda<-sapply(tt,FUN=function(x) stats::rgamma(1,shape=s,scale=1/x))
         
