@@ -13,13 +13,14 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   S<-t(X)%*%X
   n=nrow(X)
   Sigma=S/n
+  p<-dim(Sigma)[1]
 
   # Concentration matrix and it's dimension:
   if(rcond(Sigma)<.Machine$double.eps)
   {
     if(illStart=="identity")
     {
-      Omega<-diag(nrow(Sigma))
+      Omega<-diag(nrow(Sigma))+1/(p**2)
     }
     else
     {
@@ -30,7 +31,6 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   {
     Omega<-MASS::ginv(Sigma)
   }
-  p<-dim(Omega)[1]
   
   # Indicator matrix and permutation matrix for looping through columns & rows ("blocks")
   indMat<-matrix(1:p**2,ncol=p,nrow=p)
