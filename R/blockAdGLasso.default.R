@@ -30,7 +30,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   {
     if(illStart=="identity")
     {
-      Omega<-diag(nrow(Sigma))
+      Omega<-diag(nrow(Sigma))+1/(p**2)
     }
     else
     {
@@ -72,6 +72,13 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
         # Gamma distirbution posterior parameter t:
         if(adaptiveType=="priorHyper")
         {
+          if(anyNA(priorHyper[upper.tri(priorHyper)]))
+          {
+            priorHypersNoNA<-na.omit(priorHyper[upper.tri(priorHyper)])
+            whichNA<-which(is.na(priorHyper[upper.tri(priorHyper)]))
+            priorHyper[upper.tri(priorHyper)][whichNA]<-sample(priorHypersNoNA,replace=TRUE,
+                  size=length(priorHyper[upper.tri(priorHyper)][whichNA]))
+          }
           tt<-OmegaTemp+priorHyper[upper.tri(priorHyper)]
         }
         else
