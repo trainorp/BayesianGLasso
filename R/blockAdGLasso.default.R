@@ -59,8 +59,8 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   tau<-matrix(NA,nrow=p,ncol=p)
 
   # Main block sampling loop:
-  tryCatch(
-    {
+  # tryCatch(
+  #   {
       for(iter in 1:totIter)
       {
         OmegaTemp<-Omega[upper.tri(Omega)]
@@ -104,6 +104,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
         # Sample from conditional distribution by column:
         for(i in 1:p)
         {
+          print(i)
           tauI<-tau[perms[,i],i]
           Sigma11<-Sigma[perms[,i],perms[,i]]
           Sigma12<-Sigma[perms[,i],i]
@@ -141,14 +142,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
         SigmaMatList[[iter]]<-Sigma
         OmegaMatList[[iter]]<-Omega
       }
-    },
-    error=function(e)
-    {
-      # Save Sigma and Omega:
-      SigmaMatList[[iter]]<-NULL
-      OmegaMatList[[iter]]<-NULL
-    }
-  )
+  #   },
+  #   error=function(e)
+  #   {
+  #     # Save Sigma and Omega:
+  #     SigmaMatList[[iter]]<-NULL
+  #     OmegaMatList[[iter]]<-NULL
+  #   }
+  # )
   bglObj<-list(Sigmas=SigmaMatList,Omegas=OmegaMatList,lambdas=NULL,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
   return(bglObj)
