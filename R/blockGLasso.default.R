@@ -84,16 +84,13 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       
       Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
       Ci<-(S[i,i]+lambda)*Omega11inv+diag(1/tauI)
-      # Cii<-solve(Ci)
-      
+
       CiChol<-chol(Ci)
       mui<-solve(-Ci,S[perms[,i],i])
       
       # Sampling:
       rnorm1<-stats::rnorm(p-1)
       beta<-mui+solve(CiChol,rnorm1)
-      
-      # beta<-mvrnorm(n=1,mu=t(-Cii %*% S[perms[,i],i]),Sigma=Cii)
       
       # Replacing omega entries
       Omega[perms[,i],i]<-beta
