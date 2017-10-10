@@ -14,7 +14,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   S<-t(X)%*%X
   n=nrow(X)
   Sigma=S/n
-  p<-dim(Omega)[1]
+  p<-dim(Sigma)[1]
   
   # Adaptive type:
   adaptiveType<-match.arg(adaptiveType)
