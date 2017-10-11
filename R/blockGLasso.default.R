@@ -31,6 +31,8 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   {
     Omega<-MASS::ginv(Sigma)
   }
+  rownames(Omega)<-rownames(Sigma)
+  colnames(Omega)<-colnames(Sigma)
   
   # Indicator matrix and permutation matrix for looping through columns & rows ("blocks")
   indMat<-matrix(1:p**2,ncol=p,nrow=p)
