@@ -104,7 +104,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
     # Sample from conditional distribution by column:
     for(i in 1:p)
     {
-      cat("i is: ",i," det(O) is:", det(Omega),"\n")
+      cat("iter is: ",iter," i is: ",i," det(O) is:", det(Omega),"\n")
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
