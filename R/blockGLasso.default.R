@@ -1,8 +1,7 @@
 #' @export
 blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
                               illStart=c("identity","glasso"),rho=.1,
-                              verbose=TRUE,...)
-{
+                              verbose=TRUE,...){
   # Total iterations:
   totIter<-iterations+burnIn 
   
@@ -16,19 +15,15 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   p<-dim(Sigma)[1]
 
   # Concentration matrix and it's dimension:
-  if(rcond(Sigma)<.Machine$double.eps)
-  {
-    if(illStart=="identity")
-    {
+  if(rcond(Sigma)<.Machine$double.eps){
+    if(illStart=="identity"){
       Omega<-diag(nrow(Sigma))+1/(p**2)
     }
-    else
-    {
+    else{
       Omega<-glasso::glasso(cov(X),rho=rho)$wi
     }
   }
-  else
-  {
+  else{
     Omega<-MASS::ginv(Sigma)
   }
   rownames(Omega)<-rownames(Sigma)
@@ -38,8 +33,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   indMat<-matrix(1:p**2,ncol=p,nrow=p)
   perms<-matrix(NA,nrow=p-1,ncol=p)
   permInt<-1:p
-  for(i in 1:ncol(perms))
-  {
+  for(i in 1:ncol(perms)){
     perms[,i]<-permInt[-i]
   }
   
@@ -54,8 +48,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   lambdaPosta<-(lambdaPriora+(p*(p+1)/2))
   
   # Main block sampling loop:
-  for(iter in 1:totIter)
-  {
+  for(iter in 1:totIter){
     # Gamma distirbution posterior parameter b:
     lambdaPostb<-lambdaPriorb+(sum(abs(c(Omega)))/2)
     # Sample lambda:
@@ -69,8 +62,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     mup<-ifelse(mup>1e12,1e12,mup)
 
     # Sample tau:
-    rinvgaussFun<-function(x)
-    {
+    rinvgaussFun<-function(x){
       return(statmod::rinvgauss(n=1,mean=x,shape=lambda**2))
     }
     rIG<-sapply(mup,rinvgaussFun)
@@ -78,8 +70,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
     tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
     
     # Sample from conditional distribution by column:
-    for(i in 1:p)
-    {
+    for(i in 1:p){
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
       Sigma12<-Sigma[perms[,i],i]
@@ -107,8 +98,7 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
       Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
       Sigma[i,i]<-1/gamm
     }
-    if(iter %% 100==0 & verbose)
-    {
+    if(iter %% 100==0 & verbose){
       cat("Total iterations= ",iter, "Iterations since burn in= ", 
           ifelse(iter-burnIn>0,iter-burnIn,0), "\n")
     }
