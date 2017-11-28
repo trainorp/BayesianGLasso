@@ -2,8 +2,7 @@
 blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("norm","priorHyper"),
                                 priorHyper=NULL,gammaPriors=1,gammaPriort=1,
                                 lambdaii=1,illStart=c("identity","glasso"),rho=.1,
-                                verbose=TRUE,...)
-{
+                                verbose=TRUE,...){
   # Total iterations:
   totIter<-iterations+burnIn
 
@@ -18,8 +17,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   
   # Adaptive type:
   adaptiveType<-match.arg(adaptiveType)
-  if(adaptiveType=="priorHyper")
-  {
+  if(adaptiveType=="priorHyper"){
     if(is.null(priorHyper)) stop("Must specify matrix of prior hyperparameters")
     if(class(priorHyper)!="matrix") stop("Prior hyperparameters must be provided as a matrix")
     if(!all(dim(Sigma)==dim(priorHyper))) stop("Dimesion of hyperparameters does not equal dimension 
@@ -27,19 +25,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   }
   
   # Concentration matrix and it's dimension:
-  if(rcond(Sigma)<.Machine$double.eps)
-  {
-    if(illStart=="identity")
-    {
+  if(rcond(Sigma)<.Machine$double.eps){
+    if(illStart=="identity"){
       Omega<-diag(nrow(Sigma))+1/(p**2)
     }
-    else
-    {
+    else{
       Omega<-glasso::glasso(cov(X),rho=rho)$wi
     }
-  }
-  else
-  {
+  }else{
     Omega<-MASS::ginv(Sigma)
   }
   rownames(Omega)<-rownames(Sigma)
@@ -49,8 +42,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   indMat<-matrix(1:p**2,ncol=p,nrow=p)
   perms<-matrix(NA,nrow=p-1,ncol=p)
   permInt<-1:p
-  for(i in 1:ncol(perms))
-  {
+  for(i in 1:ncol(perms)){
     perms[,i]<-permInt[-i]
   }
   
@@ -61,8 +53,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   tau<-matrix(NA,nrow=p,ncol=p)
 
   # Main block sampling loop:
-  for(iter in 1:totIter)
-  {
+  for(iter in 1:totIter){
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
     
@@ -70,19 +61,15 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
     s<-gammaPriors+1
     
     # Gamma distirbution posterior parameter t:
-    if(adaptiveType=="priorHyper")
-    {
-      if(anyNA(priorHyper[upper.tri(priorHyper)]))
-      {
+    if(adaptiveType=="priorHyper"){
+      if(anyNA(priorHyper[upper.tri(priorHyper)])){
         priorHypersNoNA<-na.omit(priorHyper[upper.tri(priorHyper)])
         whichNA<-which(is.na(priorHyper[upper.tri(priorHyper)]))
         priorHyper[upper.tri(priorHyper)][whichNA]<-sample(priorHypersNoNA,replace=TRUE,
               size=length(priorHyper[upper.tri(priorHyper)][whichNA]))
       }
       tt<-OmegaTemp+priorHyper[upper.tri(priorHyper)]
-    }
-    else
-    {
+    }else{
       tt<-OmegaTemp+gammaPriort
     }
 
@@ -94,16 +81,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
     
     # Sample tau:
     rIG<-rep(NA,length(mup))
-    for(ii in 1:length(mup))
-    {
+    for(ii in 1:length(mup)){
       rIG[ii]<-statmod::rinvgauss(n=1,mean=mup[ii],shape=lambda[ii]**2)
     }
     tau[upper.tri(tau)]<-1/rIG
     tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
     
     # Sample from conditional distribution by column:
-    for(i in 1:p)
-    {
+    for(i in 1:p){
       cat("iter is: ",iter," i is: ",i," det(O) is:", det(Omega),"\n")
       tauI<-tau[perms[,i],i]
       Sigma11<-Sigma[perms[,i],perms[,i]]
@@ -132,8 +117,7 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
       Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
       Sigma[i,i]<-1/gamm
     }
-    if(iter %% 100==0 & verbose)
-    {
+    if(iter %% 100==0 & verbose){
       cat("Total iterations= ",iter, "Iterations since burn in= ", 
           ifelse(iter-burnIn>0,iter-burnIn,0), "\n")
     }
