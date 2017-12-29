@@ -21,16 +21,16 @@
 #' @param rho Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")
 #' @param verbose logical; if TRUE return MCMC progress
 #' @details Implements the block Gibbs sampler for the Bayesian graphical lasso
-#' introduced in Wang (2012). Samples from the conditional distribution of a 
-#' permuted column/row for simulating the posterior distribution for the concentration 
+#' introduced in Wang (2012). Samples from the conditional distribution of a
+#' permuted column/row for simulating the posterior distribution for the concentration
 #' matrix specifying a Gaussian Graphical Model
-#' @return 
+#' @return
 #' \item{Sigma}{List of covariance matrices from the Markov chain}
 #' \item{Omega}{List of concentration matrices from the Markov chains}
 #' \item{Lambda}{Vector of simulated lambda parameters}
 #' @author Patrick Trainor (University of Louisville)
 #' @author Hao Wang
-#' @references Wang, H. (2012). Bayesian graphical lasso models and efficient 
+#' @references Wang, H. (2012). Bayesian graphical lasso models and efficient
 #' posterior computation. \emph{Bayesian Analysis, 7}(4). <doi:10.1214/12-BA729> .
 #' @examples
 #' \donttest{
