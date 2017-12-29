@@ -57,10 +57,10 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
     OmegaTemp<-Omega[upper.tri(Omega)]
     OmegaTemp<-abs(OmegaTemp)
     
-    # Gamma distirbution posterior parameter s:
-    s<-gammaPriors+1
+    # Gamma distirbution conditional parameter t:
+    tt<-OmegaTemp+gammaPriort
     
-    # Gamma distirbution posterior parameter t:
+    # Gamma distribution conditional parameter s
     if(adaptiveType=="priorHyper"){
       if(anyNA(priorHyper[upper.tri(priorHyper)])){
         priorHypersNoNA<-na.omit(priorHyper[upper.tri(priorHyper)])
@@ -68,14 +68,15 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
         priorHyper[upper.tri(priorHyper)][whichNA]<-sample(priorHypersNoNA,replace=TRUE,
               size=length(priorHyper[upper.tri(priorHyper)][whichNA]))
       }
-      tt<-OmegaTemp+priorHyper[upper.tri(priorHyper)]
+      s<-1+priorHyper[upper.tri(priorHyper)]
     }else{
-      tt<-OmegaTemp+gammaPriort
+      s<-gammaPriors+1
     }
 
     # Sample lambda:
-    lambda<-sapply(tt,FUN=function(x) stats::rgamma(1,shape=s,scale=1/x))
-    
+    lambda<-rep(NA,length(tt))
+    for(ii in 1:length(tt)) lambda[ii]<-stats::rgamma(1,shape=s[ii],scale=1/tt[ii])
+
     mup<-lambda/OmegaTemp
     mup<-ifelse(mup>1e12,1e12,mup)
     
