@@ -3,8 +3,8 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
                               illStart=c("identity","glasso"),rho=.1,
                               verbose=TRUE,...){
   # Total iterations:
-  totIter<-iterations+burnIn 
-  
+  totIter<-iterations+burnIn
+
   # Ill conditioned start:
   illStart<-match.arg(illStart)
 
@@ -28,14 +28,13 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   }
   rownames(Omega)<-rownames(Sigma)
   colnames(Omega)<-colnames(Sigma)
-  
+
   # Gamma distirbution posterior parameter a:
   lambdaPosta<-(lambdaPriora+(p*(p+1)/2))
-  
-  # Rcpp::sourceCpp('~/gdrive/Dissertation/Aim2/BayesianGLasso/src/bglCpp.cpp')
-  bglObj<-bgl(n=n,iters=5,lambdaPriorb=lambdaPriorb,lambdaPosta=lambdaPosta,S=S,
-           Sigma=Sigma,Omega=Omega)
-  
+
+  bglObj<-bgl(n=n,iters=totIter,lambdaPriorb=lambdaPriorb,lambdaPosta=lambdaPosta,
+              S=S,Sigma=Sigma,Omega=Omega)
+
   bglObj<-c(bglObj,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
   return(bglObj)

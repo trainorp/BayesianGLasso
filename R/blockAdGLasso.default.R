@@ -8,126 +8,45 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
 
   # Ill conditioned start:
   illStart<-match.arg(illStart)
-  
+
   # Sum of product matrix, covariance matrix, n
   S<-t(X)%*%X
   n=nrow(X)
   Sigma=S/n
   p<-dim(Sigma)[1]
-  
+
   # Adaptive type:
   adaptiveType<-match.arg(adaptiveType)
   if(adaptiveType=="priorHyper"){
     if(is.null(priorHyper)) stop("Must specify matrix of prior hyperparameters")
     if(class(priorHyper)!="matrix") stop("Prior hyperparameters must be provided as a matrix")
-    if(!all(dim(Sigma)==dim(priorHyper))) stop("Dimesion of hyperparameters does not equal dimension 
+    if(!all(dim(Sigma)==dim(priorHyper))) stop("Dimesion of hyperparameters does not equal dimension
                                            of the concentration matrix")
+    priorLogical<-TRUE
+  }else{
+    priorLogical<-FALSE
+    priorHyper<-matrix(1,nrow=p,ncol=p)
   }
-  
+
   # Concentration matrix and it's dimension:
   if(rcond(Sigma)<.Machine$double.eps){
     if(illStart=="identity"){
       Omega<-diag(nrow(Sigma))+1/(p**2)
     }
     else{
-      Omega<-glasso::glasso(cov(X),rho=rho)$wi
+      Omega<-glasso::glasso(cov(X),rho=rho)$wi+1/(p**2)
     }
   }else{
     Omega<-MASS::ginv(Sigma)
   }
   rownames(Omega)<-rownames(Sigma)
   colnames(Omega)<-colnames(Sigma)
-  
-  # Indicator matrix and permutation matrix for looping through columns & rows ("blocks")
-  indMat<-matrix(1:p**2,ncol=p,nrow=p)
-  perms<-matrix(NA,nrow=p-1,ncol=p)
-  permInt<-1:p
-  for(i in 1:ncol(perms)){
-    perms[,i]<-permInt[-i]
-  }
-  
-  # Structures for storing each MCMC iteration:
-  SigmaMatList<-OmegaMatList<-list()
 
-  # Latent tau:
-  tau<-matrix(NA,nrow=p,ncol=p)
+  bglObj<-bAdgl(n=n, iters=totIter, gammaPriors=gammaPriors,
+                gammaPriort=gammaPriort, lambdaii=lambdaii, S=S, Sigma=Sigma,
+                Omega=Omega, priorLogical=priorLogical, priorHyper=priorHyper)
 
-  # Main block sampling loop:
-  for(iter in 1:totIter){
-    OmegaTemp<-Omega[upper.tri(Omega)]
-    OmegaTemp<-abs(OmegaTemp)
-    
-    # Gamma distirbution conditional parameter t:
-    tt<-OmegaTemp+gammaPriort
-    
-    # Gamma distribution conditional parameter s
-    if(adaptiveType=="priorHyper"){
-      if(anyNA(priorHyper[upper.tri(priorHyper)])){
-        priorHypersNoNA<-na.omit(priorHyper[upper.tri(priorHyper)])
-        whichNA<-which(is.na(priorHyper[upper.tri(priorHyper)]))
-        priorHyper[upper.tri(priorHyper)][whichNA]<-sample(priorHypersNoNA,replace=TRUE,
-              size=length(priorHyper[upper.tri(priorHyper)][whichNA]))
-      }
-      s<-1+priorHyper[upper.tri(priorHyper)]
-    }else{
-      s<-gammaPriors+1
-    }
-
-    # Sample lambda:
-    lambda<-rep(NA,length(tt))
-    for(ii in 1:length(tt)) lambda[ii]<-stats::rgamma(1,shape=s[ii],scale=1/tt[ii])
-
-    mup<-lambda/OmegaTemp
-    mup<-ifelse(mup>1e12,1e12,mup)
-    
-    # Sample tau:
-    rIG<-rep(NA,length(mup))
-    for(ii in 1:length(mup)){
-      rIG[ii]<-statmod::rinvgauss(n=1,mean=mup[ii],shape=lambda[ii]**2)
-    }
-    tau[upper.tri(tau)]<-1/rIG
-    tau[lower.tri(tau)]<-t(tau)[lower.tri(t(tau))]
-    
-    # Sample from conditional distribution by column:
-    for(i in 1:p){
-      cat("iter is: ",iter," i is: ",i," det(O) is:", det(Omega),"\n")
-      tauI<-tau[perms[,i],i]
-      Sigma11<-Sigma[perms[,i],perms[,i]]
-      Sigma12<-Sigma[perms[,i],i]
-      
-      Omega11inv<-Sigma11-Sigma12%*%t(Sigma12)/Sigma[i,i]
-      Ci<-(S[i,i]+lambdaii)*Omega11inv+diag(1/tauI)
-      
-      CiChol<-chol(Ci)
-      mui<-solve(-Ci,S[perms[,i],i])
-      
-      # Sampling:
-      rnorm1<-stats::rnorm(p-1)
-      beta<-mui+solve(CiChol,rnorm1)
-      
-      # Replacing omega entries
-      Omega[perms[,i],i]<-beta
-      Omega[i,perms[,i]]<-beta
-      gamm<-stats::rgamma(n=1,shape=n/2+1,rate=(S[i,i]+lambdaii)/2)
-      Omega[i,i]<-gamm+(t(beta) %*% Omega11inv %*% beta)
-      
-      # Replacing sigma entries
-      OmegaInvTemp<-Omega11inv %*% beta
-      Sigma[perms[,i],perms[,i]]<-Omega11inv+(OmegaInvTemp %*% t(OmegaInvTemp))/gamm
-      Sigma[perms[,i],i]<-(-OmegaInvTemp/gamm)
-      Sigma[i,perms[,i]]<-(-OmegaInvTemp/gamm)
-      Sigma[i,i]<-1/gamm
-    }
-    if(iter %% 100==0 & verbose){
-      cat("Total iterations= ",iter, "Iterations since burn in= ", 
-          ifelse(iter-burnIn>0,iter-burnIn,0), "\n")
-    }
-    
-    # Save Sigma and Omega:
-    SigmaMatList[[iter]]<-Sigma
-    OmegaMatList[[iter]]<-Omega
-  }
-  bglObj<-list(Sigmas=SigmaMatList,Omegas=OmegaMatList,lambdas=NULL,burnIn=burnIn)
+  bglObj<-c(bglObj,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
   return(bglObj)
 }
