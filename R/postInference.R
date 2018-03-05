@@ -1,7 +1,8 @@
 #' Posterior inference 
 #'
-#' Posterior distributions
+#' Posterior distributions of [LOH]
 #' 
+#' @param x Bayesian Graphical Lasso object as returned by the function blockGLasso
 #' @export
 posteriorInference<-function(x,...) UseMethod("posteriorInference")
 

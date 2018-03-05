@@ -6,6 +6,9 @@
 \usage{
 posteriorInference(x, ...)
 }
+\arguments{
+\item{x}{Bayesian Graphical Lasso object as returned by the function blockGLasso}
+}
 \description{
-Posterior distributions
+Posterior distributions of [LOH]
 }

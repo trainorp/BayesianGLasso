@@ -53,10 +53,12 @@ for simulating the posterior distribution for the concentration matrix specifyin
 a Gaussian Graphical Model
 }
 \details{
-Implements the block Gibbs sampler for the Bayesian graphical lasso
-introduced in Wang (2012). Samples from the conditional distribution of a
-permuted column/row for simulating the posterior distribution for the concentration
-matrix specifying a Gaussian Graphical Model
+Implements the block Gibbs sampler for the posterior distribution of
+a GGM concentration matrix estimated via the Bayesian Graphical Lasso
+introduced by Wang (2012) or the Bayesian Adaptive Graphical Lasso. For the adaptive case,
+the element-wise shrinkage parameter is drawn from a gamma distribution where the scale
+parameter is adaptively modulated directly from the estimated concentration matrix
+or a user can supply their own informative prior.
 }
 \examples{
 \donttest{
