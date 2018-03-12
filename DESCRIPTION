@@ -1,6 +1,6 @@
 Package: BayesianGLasso
 Title: Bayesian Graphical Lasso
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: person("Patrick", "Trainor", email = "patrick.trainor@louisville.edu", role = c("aut", "cre"))
 Description: Implements data-augmented block Gibbs samplers for simulating the posterior distribution of concentration matrices for specifying the topology and parameterization of a Gaussian Graphical Model (GGM). These samplers were originally proposed in Wang (2012) <doi:10.1214/12-BA729>. A sampler is available for the Bayesian Graphical Lasso as well as the Bayesian Adaptive Graphical Lasso. Experimental methods have been developed for using informative priors for modulating the magnitude of shrinkage informed by some a priori knowledge. 
 Depends: R (>= 3.0.0)

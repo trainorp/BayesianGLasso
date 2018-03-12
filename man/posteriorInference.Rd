@@ -4,11 +4,23 @@
 \alias{posteriorInference}
 \title{Posterior inference}
 \usage{
-posteriorInference(x, ...)
+posteriorInference(bglObj, parameter = "Omega", alpha = 0.05, ...)
 }
 \arguments{
+\item{parameter}{Options are "Omega" for the posterior distribution of the 
+concentration matrix or "Sigma" for the covariance matrix}
+
 \item{x}{Bayesian Graphical Lasso object as returned by the function blockGLasso}
 }
+\value{
+\item{posteriorMean}{Matrix of mean values of the simulated posterior distribution}
+\item{posteriorSd}{Matrix of standard deviation values of the simulated posterior distribution}
+\item{posteriorMedian}{Matrix of median values of the simulated posterior distribution}
+\item{lowerCI}{Lower limit of the Bayesian credible interval for each matrix parameter}
+\item{upperCI}{Upper limit of the Bayesian credible interval for each matrix parameter}
+}
 \description{
-Posterior distributions of [LOH]
+Inferential statistics for the simulated posterior distributions of the covariance 
+and concentration parameter matrices for Gaussian Graphical Models estimated
+via the adaptive or non-adaptive Bayesian Graphical Lasso
 }
