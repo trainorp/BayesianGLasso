@@ -17,6 +17,7 @@
 #' @param gammaPriors labmda_ij gamma distribution shape prior (Ignored if adaptive=FALSE)
 #' @param gammaPriort lambda_ij gamma distribution rate prior (Ignored if adaptive=FALSE)
 #' @param lambdaii lambda_ii hyperparameter (Ignored if adaptive=FALSE)
+#' @param keepLambdas Logical: Should lambda MCMC chain (vector / matrix) be kept?
 #' @param illStart Method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite
 #' @param rho Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")
 #' @param verbose logical; if TRUE return MCMC progress
@@ -28,7 +29,6 @@
 #' or a user can supply their own informative prior.
 #' 
 #' @return
-#' \item{Sigma}{List of covariance matrices from the Markov chain}
 #' \item{Omega}{List of concentration matrices from the Markov chains}
 #' \item{Lambda}{Vector of simulated lambda parameters}
 #' @author Patrick Trainor (University of Louisville)
@@ -54,7 +54,7 @@ blockGLasso<-function(X,iterations=2000,burnIn=1000,adaptive=FALSE,
           lambdaPriora=1,lambdaPriorb=1/10,
           adaptiveType=c("norm","priorHyper"), priorHyper=NULL,
           gammaPriors=1,gammaPriort=1,
-          lambdaii=1,illStart=c("identity","glasso"),rho=.1,
+          lambdaii=1,keepLambdas=TRUE,illStart=c("identity","glasso"),rho=.1,
           verbose=TRUE,...)
 {
   if(adaptive)

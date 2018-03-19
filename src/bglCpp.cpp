@@ -49,22 +49,31 @@ IntegerMatrix permFun(int p){
 
 // [[Rcpp::export]]
 List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta,
-         arma::mat S, arma::mat Sigma, arma::mat Omega){
+         arma::mat S, arma::mat Sigma, arma::mat Omega, int keepLambdas){
   // ProfilerStart("myprof.log");
 
   int p = Omega.n_cols;
   IntegerMatrix idk = permFun(p);
-
-  NumericVector lambdaList(iters);
-  List SigmaList(iters);
   List OmegaList(iters);
+  
+  NumericVector lambdaList;
+  if(keepLambdas==1){
+    lambdaList = NumericVector(iters);
+  }
+  else{
+    lambdaList = NumericVector(1);
+  }
 
   for(int iter=0; iter < iters; ++iter){
+
     // Sample lambda:
     arma::vec Omega2 = vectorise(Omega);
     double lambdaPostb = lambdaPriorb + sum(abs(Omega2)) / 2.0;
     double lambda = R::rgamma(lambdaPosta,1.0 / lambdaPostb);
-    lambdaList(iter) = lambda;
+    
+    if(keepLambdas==1){
+      lambdaList(iter) = lambda;
+    }
 
     // Mu prime:
     arma::vec OmegaTemp = abs(upperTri(Omega));
@@ -122,8 +131,6 @@ List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta,
       Sigma(i,i) = 1/gamm;
 
       OmegaList(iter) = Omega;
-      SigmaList(iter) = Sigma;
-
     }
     Rcpp::Rcout << "iter = " << iter + 1 << std::endl;
 
@@ -131,21 +138,28 @@ List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta,
   // ProfilerStop();
 
   return List::create(Named("lambdas") = lambdaList,
-                      Named("Omegas") = OmegaList, Named("Sigmas") = SigmaList);
+                      Named("Omegas") = OmegaList);
 }
 
 // [[Rcpp::export]]
 List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
               double lambdaii, arma::mat S, arma::mat Sigma,
-              arma::mat Omega, bool priorLogical, arma::mat priorHyper){
+              arma::mat Omega, bool priorLogical, arma::mat priorHyper,
+              int keepLambdas){
   // ProfilerStart("myprof.log");
 
   int p = Omega.n_cols;
   IntegerMatrix idk = permFun(p);
 
-  List SigmaList(iters);
   List OmegaList(iters);
-  List LambdaList(iters);
+
+  List LambdaList;
+  if(keepLambdas==1){
+    LambdaList = List(iters);
+  }
+  else{
+    LambdaList = List(1);
+  }
 
   for(int iter=0; iter < iters; ++iter){
     // Sample lambdas:
@@ -231,7 +245,6 @@ List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
       Sigma(i,i) = 1/gamm;
 
       OmegaList(iter) = Omega;
-      SigmaList(iter) = Sigma;
 
       arma::mat lambdaMat(Omega.n_rows,Omega.n_cols,arma::fill::zeros);
       int k = 0;
@@ -241,7 +254,9 @@ List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
           k++;
         }
       }
-      LambdaList(iter) = lambdaMat;
+      if(keepLambdas==1){
+        LambdaList(iter) = lambdaMat;
+      }
 
     }
     double detOmega = arma::det(Omega);
@@ -249,6 +264,6 @@ List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
   }
 
   return List::create(Named("lambdas") = LambdaList,
-                      Named("Omegas") = OmegaList, Named("Sigmas") = SigmaList);
+                      Named("Omegas") = OmegaList);
 }
 
