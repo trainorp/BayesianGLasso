@@ -129,9 +129,8 @@ List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta,
       Sigma.submat(tauIPerms2, tauII) = -OmegaInvTemp/gamm;
       Sigma.submat(tauII,tauIPerms2) = -OmegaInvTemp.t()/gamm;
       Sigma(i,i) = 1/gamm;
-
-      OmegaList(iter) = Omega;
     }
+    OmegaList(iter) = Omega;
     Rcpp::Rcout << "iter = " << iter + 1 << std::endl;
 
   }
@@ -225,10 +224,7 @@ List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
       Sigma12 = Sigma.submat(tauIPerms2, tauII);
       Omega11inv = Sigma11 - ((Sigma12 * Sigma12.t()) / Sigma(i,i));
       Ci = (S(i,i) + lambdaii) * Omega11inv + diagmat(1 / tauI);
-
-      // double detOmega = det(Omega);
-      // Rcpp::Rcout << "iter = " << iter + 1 << " i = " << i << " det(Omega) = " << detOmega << std::endl;
-
+      
       CiChol = arma::chol(Ci);
       mui = arma::solve(-Ci, S.submat(tauIPerms2, tauII));
       rnorm1 = rnorm(p-1);
@@ -243,22 +239,21 @@ List bAdgl(int n, int iters, double gammaPriors, double gammaPriort,
       Sigma.submat(tauIPerms2, tauII) = -OmegaInvTemp/gamm;
       Sigma.submat(tauII,tauIPerms2) = -OmegaInvTemp.t()/gamm;
       Sigma(i,i) = 1/gamm;
-
-      OmegaList(iter) = Omega;
-
-      arma::mat lambdaMat(Omega.n_rows,Omega.n_cols,arma::fill::zeros);
-      int k = 0;
-      for(unsigned int j = 0; j < lambdaMat.n_cols; j++){
-        for(unsigned int i = 0; i < j; i++){
-          lambdaMat(i,j) = lambda(k);
-          k++;
-        }
-      }
-      if(keepLambdas==1){
-        LambdaList(iter) = lambdaMat;
-      }
-
     }
+    OmegaList(iter) = Omega;
+    
+    arma::mat lambdaMat(Omega.n_rows,Omega.n_cols,arma::fill::zeros);
+    int kk = 0;
+    for(unsigned int j = 0; j < lambdaMat.n_cols; j++){
+      for(unsigned int i = 0; i < j; i++){
+        lambdaMat(i,j) = lambda(kk);
+        kk++;
+      }
+    }
+    if(keepLambdas==1){
+      LambdaList(iter) = lambdaMat;
+    }
+    
     double detOmega = arma::det(Omega);
     Rcpp::Rcout << "iter = " << iter + 1 << " det(Omega) = " << detOmega << std::endl;
   }
