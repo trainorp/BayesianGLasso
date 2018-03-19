@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // bgl
-List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta, arma::mat S, arma::mat Sigma, arma::mat Omega);
-RcppExport SEXP _BayesianGLasso_bgl(SEXP nSEXP, SEXP itersSEXP, SEXP lambdaPriorbSEXP, SEXP lambdaPostaSEXP, SEXP SSEXP, SEXP SigmaSEXP, SEXP OmegaSEXP) {
+List bgl(int n, int iters, double lambdaPriorb, double lambdaPosta, arma::mat S, arma::mat Sigma, arma::mat Omega, int keepLambdas);
+RcppExport SEXP _BayesianGLasso_bgl(SEXP nSEXP, SEXP itersSEXP, SEXP lambdaPriorbSEXP, SEXP lambdaPostaSEXP, SEXP SSEXP, SEXP SigmaSEXP, SEXP OmegaSEXP, SEXP keepLambdasSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,13 +19,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Omega(OmegaSEXP);
-    rcpp_result_gen = Rcpp::wrap(bgl(n, iters, lambdaPriorb, lambdaPosta, S, Sigma, Omega));
+    Rcpp::traits::input_parameter< int >::type keepLambdas(keepLambdasSEXP);
+    rcpp_result_gen = Rcpp::wrap(bgl(n, iters, lambdaPriorb, lambdaPosta, S, Sigma, Omega, keepLambdas));
     return rcpp_result_gen;
 END_RCPP
 }
 // bAdgl
-List bAdgl(int n, int iters, double gammaPriors, double gammaPriort, double lambdaii, arma::mat S, arma::mat Sigma, arma::mat Omega, bool priorLogical, arma::mat priorHyper);
-RcppExport SEXP _BayesianGLasso_bAdgl(SEXP nSEXP, SEXP itersSEXP, SEXP gammaPriorsSEXP, SEXP gammaPriortSEXP, SEXP lambdaiiSEXP, SEXP SSEXP, SEXP SigmaSEXP, SEXP OmegaSEXP, SEXP priorLogicalSEXP, SEXP priorHyperSEXP) {
+List bAdgl(int n, int iters, double gammaPriors, double gammaPriort, double lambdaii, arma::mat S, arma::mat Sigma, arma::mat Omega, bool priorLogical, arma::mat priorHyper, int keepLambdas);
+RcppExport SEXP _BayesianGLasso_bAdgl(SEXP nSEXP, SEXP itersSEXP, SEXP gammaPriorsSEXP, SEXP gammaPriortSEXP, SEXP lambdaiiSEXP, SEXP SSEXP, SEXP SigmaSEXP, SEXP OmegaSEXP, SEXP priorLogicalSEXP, SEXP priorHyperSEXP, SEXP keepLambdasSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,14 +40,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Omega(OmegaSEXP);
     Rcpp::traits::input_parameter< bool >::type priorLogical(priorLogicalSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type priorHyper(priorHyperSEXP);
-    rcpp_result_gen = Rcpp::wrap(bAdgl(n, iters, gammaPriors, gammaPriort, lambdaii, S, Sigma, Omega, priorLogical, priorHyper));
+    Rcpp::traits::input_parameter< int >::type keepLambdas(keepLambdasSEXP);
+    rcpp_result_gen = Rcpp::wrap(bAdgl(n, iters, gammaPriors, gammaPriort, lambdaii, S, Sigma, Omega, priorLogical, priorHyper, keepLambdas));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BayesianGLasso_bgl", (DL_FUNC) &_BayesianGLasso_bgl, 7},
-    {"_BayesianGLasso_bAdgl", (DL_FUNC) &_BayesianGLasso_bAdgl, 10},
+    {"_BayesianGLasso_bgl", (DL_FUNC) &_BayesianGLasso_bgl, 8},
+    {"_BayesianGLasso_bAdgl", (DL_FUNC) &_BayesianGLasso_bAdgl, 11},
     {NULL, NULL, 0}
 };
 

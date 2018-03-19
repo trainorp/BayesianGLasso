@@ -7,8 +7,8 @@
 blockGLasso(X, iterations = 2000, burnIn = 1000, adaptive = FALSE,
   lambdaPriora = 1, lambdaPriorb = 1/10, adaptiveType = c("norm",
   "priorHyper"), priorHyper = NULL, gammaPriors = 1, gammaPriort = 1,
-  lambdaii = 1, illStart = c("identity", "glasso"), rho = 0.1,
-  verbose = TRUE, ...)
+  lambdaii = 1, keepLambdas = TRUE, illStart = c("identity", "glasso"),
+  rho = 0.1, verbose = TRUE, ...)
 }
 \arguments{
 \item{X}{Data matrix}
@@ -36,6 +36,8 @@ matrix based adaptivity and "priorHyper" for informative adaptivity}
 
 \item{lambdaii}{lambda_ii hyperparameter (Ignored if adaptive=FALSE)}
 
+\item{keepLambdas}{Logical: Should lambda MCMC chain (vector / matrix) be kept?}
+
 \item{illStart}{Method for generating a positive definite estimate of the sample covariance matrix if sample covariance matrix is not semi-positive definite}
 
 \item{rho}{Regularization parameter for the graphical lasso estimate of the sample covariance matrix (if illStart="glasso")}
@@ -43,7 +45,6 @@ matrix based adaptivity and "priorHyper" for informative adaptivity}
 \item{verbose}{logical; if TRUE return MCMC progress}
 }
 \value{
-\item{Sigma}{List of covariance matrices from the Markov chain}
 \item{Omega}{List of concentration matrices from the Markov chains}
 \item{Lambda}{Vector of simulated lambda parameters}
 }

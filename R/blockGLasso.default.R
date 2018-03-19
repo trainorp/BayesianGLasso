@@ -1,6 +1,6 @@
 #' @export
 blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambdaPriorb=1/10,
-                              illStart=c("identity","glasso"),rho=.1,
+                              illStart=c("identity","glasso"),keepLambdas=TRUE,rho=.1,
                               verbose=TRUE,...){
   # Total iterations:
   totIter<-iterations+burnIn
@@ -32,8 +32,12 @@ blockGLasso.default<-function(X,iterations=2000,burnIn=1000,lambdaPriora=1,lambd
   # Gamma distirbution posterior parameter a:
   lambdaPosta<-(lambdaPriora+(p*(p+1)/2))
 
+  # Keep lambdas?
+  keepLambdas<-ifelse(keepLambdas,1L,0L)
+  
+  # Call sampler:
   bglObj<-bgl(n=n,iters=totIter,lambdaPriorb=lambdaPriorb,lambdaPosta=lambdaPosta,
-              S=S,Sigma=Sigma,Omega=Omega)
+              S=S,Sigma=Sigma,Omega=Omega,keepLambdas=keepLambdas)
 
   bglObj<-c(bglObj,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"

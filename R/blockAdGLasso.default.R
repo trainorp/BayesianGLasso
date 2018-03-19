@@ -1,8 +1,8 @@
 #' @export
 blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("norm","priorHyper"),
                                 priorHyper=NULL,gammaPriors=1,gammaPriort=1,
-                                lambdaii=1,illStart=c("identity","glasso"),rho=.1,
-                                verbose=TRUE,...){
+                                lambdaii=1,keepLambdas=TRUE,illStart=c("identity","glasso"),
+                                rho=.1,verbose=TRUE,...){
   # Total iterations:
   totIter<-iterations+burnIn
 
@@ -42,9 +42,14 @@ blockAdGLasso.default<-function(X,iterations=2000,burnIn=1000,adaptiveType=c("no
   rownames(Omega)<-rownames(Sigma)
   colnames(Omega)<-colnames(Sigma)
 
+  # Keep lambdas?
+  keepLambdas<-ifelse(keepLambdas,1L,0L)
+  
+  # Call sampler:
   bglObj<-bAdgl(n=n, iters=totIter, gammaPriors=gammaPriors,
                 gammaPriort=gammaPriort, lambdaii=lambdaii, S=S, Sigma=Sigma,
-                Omega=Omega, priorLogical=priorLogical, priorHyper=priorHyper)
+                Omega=Omega, priorLogical=priorLogical, priorHyper=priorHyper,
+                keepLambdas=keepLambdas)
 
   bglObj<-c(bglObj,burnIn=burnIn)
   class(bglObj)<-"BayesianGLasso"
